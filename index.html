@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Figuritas Road to FIFA 2026</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Trebuchet MS',sans-serif;background:#f0f2f5;color:#111;min-height:100vh;}
+
+/* HEADER */
+#header{background:linear-gradient(135deg,#1e3a8a,#1d4ed8);color:#fff;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.2);}
+#header-top{padding:10px 14px 6px;text-align:center;}
+#header-top .sub{font-size:9px;letter-spacing:3px;color:rgba(255,255,255,.6);text-transform:uppercase;}
+#header-top h1{font-size:16px;font-weight:900;}
+#progress-row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;}
+#progress-bar-wrap{height:8px;background:rgba(255,255,255,.2);border-radius:99px;overflow:hidden;}
+#progress-bar{height:100%;background:linear-gradient(90deg,#86efac,#34d399);border-radius:99px;transition:width .5s;width:0%;}
+#progress-wrap{max-width:340px;margin:6px auto 2px;}
+
+/* SOBRE */
+#sobre-wrap{padding:0 12px 8px;}
+#sobre-btn{width:100%;padding:8px;border-radius:10px;border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;font-weight:700;font-size:13px;cursor:pointer;}
+#sobre-box{background:rgba(255,255,255,.95);border-radius:10px;padding:10px;margin-top:6px;display:none;}
+#sobre-box.open{display:block;}
+#sobre-hint{font-size:12px;color:#444;margin-bottom:6px;}
+#sobre-input{width:100%;padding:8px;border-radius:8px;border:2px solid #1d4ed8;font-size:15px;color:#111;min-height:60px;resize:none;outline:none;font-family:monospace;font-weight:700;}
+#sobre-ok{width:100%;padding:10px;margin-top:6px;border-radius:8px;border:none;background:#1d4ed8;color:#fff;font-weight:800;font-size:15px;cursor:pointer;}
+#sobre-msg{margin-top:8px;font-size:12px;color:#444;padding:6px 8px;background:#f0fdf4;border-radius:6px;border:1px solid #86efac;display:none;}
+
+/* NAV */
+#nav{display:flex;border-top:1px solid rgba(255,255,255,.15);}
+.nav-btn{flex:1;padding:10px 2px;background:transparent;border:none;border-bottom:3px solid transparent;color:rgba(255,255,255,.5);font-size:12px;font-weight:700;cursor:pointer;}
+.nav-btn.active{background:rgba(255,255,255,.15);border-bottom:3px solid #fff;color:#fff;}
+
+/* CONTENT */
+#content{padding:12px;max-width:600px;margin:0 auto;}
+
+/* TABS */
+#tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:10px;scrollbar-width:none;}
+#tabs::-webkit-scrollbar{display:none;}
+.tab-btn{white-space:nowrap;padding:6px 14px;border-radius:20px;border:2px solid #d1d5db;background:#fff;color:#555;font-weight:700;font-size:12px;cursor:pointer;}
+.tab-btn.active{background:#1d4ed8;border-color:#1d4ed8;color:#fff;}
+
+/* SEARCH */
+#search-input{width:100%;padding:11px 14px;border-radius:12px;border:2px solid #d1d5db;background:#fff;color:#111;font-size:14px;margin-bottom:10px;outline:none;font-weight:500;}
+
+/* CARD */
+.card{background:#fff;border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.08);}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.card-title{font-weight:800;font-size:15px;color:#111;display:flex;align-items:center;gap:8px;}
+.card-flag{font-size:24px;}
+.card-count{font-size:14px;font-weight:800;color:#9ca3af;}
+.card-count.done{color:#16a34a;}
+.card-subtitle{font-size:11px;color:#9ca3af;}
+
+/* PROGRESS */
+.bar-wrap{height:6px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin-bottom:10px;}
+.bar-fill{height:100%;border-radius:99px;transition:width .4s;background:#16a34a;}
+
+/* FIGURITA WRAPPER */
+.fig-wrap{position:relative;display:inline-flex;flex-direction:column;align-items:center;}
+.fig-rep-btn{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:#f97316;border:none;color:#fff;font-size:13px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.2);z-index:2;line-height:1;}
+.fig-rc{position:absolute;bottom:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:#dc2626;color:#fff;font-size:9px;font-weight:900;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+
+/* FIGURITA BUTTONS */
+.figs{display:flex;flex-wrap:wrap;gap:6px;}
+.fig-btn{width:58px;height:68px;border-radius:10px;background:#fff;border:2px solid #e5e7eb;color:#9ca3af;cursor:pointer;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:all .15s;box-shadow:0 1px 3px rgba(0,0,0,.08);}
+.fig-btn.tiene{background:#dcfce7;border-color:#16a34a;color:#15803d;box-shadow:0 2px 8px rgba(22,163,74,.25);}
+.fig-btn .fig-num{font-size:16px;line-height:1;}
+.fig-btn .fig-name{font-size:8px;color:#d1d5db;max-width:54px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px;}
+.fig-btn.tiene .fig-name{color:#86efac;}
+
+/* FALTANTES */
+.falt-card{background:#fff;border-radius:14px;padding:12px 14px;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,.08);}
+.falt-card-title{font-weight:800;font-size:14px;color:#111;margin-bottom:8px;}
+.falt-chips{display:flex;flex-wrap:wrap;gap:6px;}
+.falt-chip{padding:8px 10px;border-radius:10px;font-size:13px;font-weight:700;background:#fef2f2;border:2px solid #fca5a5;color:#dc2626;cursor:pointer;min-width:50px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.falt-chip .cn{font-size:15px;font-weight:900;line-height:1;}
+.falt-chip .cname{font-size:9px;color:#9ca3af;max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.falt-banner{background:#fff;border-radius:14px;padding:12px 14px;margin-bottom:14px;box-shadow:0 1px 6px rgba(0,0,0,.08);border-left:5px solid #dc2626;}
+.falt-banner h2{font-size:16px;font-weight:900;color:#dc2626;}
+.falt-banner p{font-size:12px;color:#888;margin-top:2px;}
+
+/* FILTROS */
+#filtros{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px;scrollbar-width:none;}
+#filtros::-webkit-scrollbar{display:none;}
+.filtro-btn{white-space:nowrap;padding:5px 12px;border-radius:20px;border:2px solid #d1d5db;background:#fff;color:#555;font-weight:700;font-size:11px;cursor:pointer;}
+.filtro-btn.active{background:#1d4ed8;border-color:#1d4ed8;color:#fff;}
+
+/* REPETIDAS */
+.rep-banner{background:#f5f3ff;border:2px solid #c4b5fd;border-radius:14px;padding:12px 14px;margin-bottom:14px;font-weight:800;font-size:15px;color:#7c3aed;}
+.rep-row{background:#fff;border-radius:12px;padding:10px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+.rep-info{}
+.rep-name{font-size:14px;font-weight:700;color:#111;}
+.rep-id{font-size:10px;color:#aaa;}
+.rep-controls{display:flex;align-items:center;gap:8px;}
+.rep-badge{background:#dc2626;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;}
+.rep-minus{background:#fef2f2;border:2px solid #dc2626;color:#dc2626;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.rep-plus{background:#f0fdf4;border:2px solid #16a34a;color:#16a34a;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.empty{text-align:center;padding:48px 20px;color:#888;}
+.empty .ei{font-size:44px;margin-bottom:12px;}
+.empty h3{font-size:16px;font-weight:700;color:#444;}
+.empty p{font-size:13px;margin-top:8px;line-height:1.7;}
+
+/* CHIP SEARCH */
+.chip-btn{padding:6px 12px;border-radius:20px;font-size:13px;background:#fff;border:2px solid #e5e7eb;color:#555;cursor:pointer;font-weight:700;}
+.chip-btn.tiene{background:#dcfce7;border-color:#16a34a;color:#15803d;}
+</style>
+
+</head>
+<body>
+
+<div id="header">
+  <div id="header-top">
+    <div class="sub">Panini Oficial</div>
+    <h1>⚽ Road to FIFA World Cup 2026™ 🏆</h1>
+    <div id="progress-wrap">
+      <div id="progress-row" class="progress-row">
+        <span id="lbl-tengo" style="color:#86efac;font-weight:700">✅ 0 tengo</span>
+        <span id="lbl-pct" style="color:#fde68a;font-weight:800">0%</span>
+        <span id="lbl-faltan" style="color:#fca5a5;font-weight:700">❌ 0 faltan</span>
+      </div>
+      <div id="progress-bar-wrap"><div id="progress-bar"></div></div>
+    </div>
+  </div>
+  <div id="sobre-wrap">
+    <button id="sobre-btn" onclick="toggleSobre()">📦 Abrir sobre nuevo</button>
+    <div id="sobre-box">
+      <div id="sobre-hint">Escribí los códigos del sobre:<br><strong style="color:#1d4ed8">Ej: ARG 17 ENG 5 BRA 14</strong></div>
+      <textarea id="sobre-input" placeholder="ARG 17 ENG 5 BRA 14..."></textarea>
+      <button id="sobre-ok" onclick="procesarSobre()">✅ Marcar figuritas</button>
+      <div id="sobre-msg"></div>
+    </div>
+  </div>
+  <div id="nav">
+    <button class="nav-btn" onclick="setVista('faltantes')" id="nav-faltantes">❌ Faltan</button>
+    <button class="nav-btn active" onclick="setVista('album')" id="nav-album">📖 Álbum</button>
+    <button class="nav-btn" onclick="setVista('repetidas')" id="nav-repetidas">🔁 Cambios</button>
+    <button class="nav-btn" onclick="setVista('exportar')" id="nav-exportar">📤 Lista</button>
+    <button class="nav-btn" onclick="setVista('intercambio')" id="nav-intercambio">🤝 Cambiar</button>
+  </div>
+</div>
+
+<div id="content"></div>
+
+<script>
+// ═══════════════════════════════════════
+// DATOS
+// ═══════════════════════════════════════
+const INICIAL = {
+  // INTRO / HOST CITIES
+  "INTRO_6":true,  // FWC 7 - MEX sticker pegada
+
+  // FWC HISTORY - las que tienen foto pegada
+  "FWC_0":true,   // FWC9 Italy 1934
+  "FWC_1":true,   // FWC10 Brazil 1950
+  "FWC_2":true,   // FWC11 Switzerland 1954
+  "FWC_3":true,   // FWC12 Brazil 1958
+  // FWC_4 = FWC13 Germany 1974 - VACÍO
+  "FWC_5":true,   // FWC14 Argentina 1978
+  "FWC_6":true,   // FWC15 USA 1994
+  // FWC_7 = FWC16 Korea 2002 - VACÍO
+  "FWC_8":true,   // FWC17 Germany 2006
+  "FWC_9":true,   // FWC18 Brazil 2014
+  "FWC_10":true,  // FWC19 Qatar 2022
+  "FWC_11":true,  // England 1966
+  "FWC_12":true,  // Italy 1982
+  "FWC_13":true,  // Germany 1990
+  "FWC_14":true,  // France 1998
+  "FWC_15":true,  // Spain 2010
+  "FWC_16":true,  // France 2018
+  "FWC_17":true,  // Brazil 1970
+
+  // EQUIPOS
+  "ARG_5":true,"ARG_7":true,"ARG_11":true,"ARG_1":true,"ARG_3":true,"ARG_13":true,
+  "NOR_11":true,"NOR_14":true,
+  "JOR_0":true,"ALG_0":true,
+  "ENG_12":true,"ENG_14":true,"ENG_15":true,"ENG_16":true,
+  "CRO_3":true,"CRO_10":true,
+  "QAT_0":true,"QAT_12":true,"QAT_13":true,"QAT_14":true,"QAT_15":true,
+  "BRA_12":true,"BRA_13":true,
+  "HAI_0":true,"HAI_1":true,"HAI_12":true,"HAI_13":true,"HAI_14":true,"HAI_15":true,
+  "IRQ_0":true,"IRQ_4":true,"IRQ_5":true,
+  "COL_15":true,"COL_16":true,"COL_17":true,
+  "POR_10":true,"POR_14":true,"POR_13":true,
+  "UZB_0":true,"UZB_2":true,"UZB_4":true,"UZB_6":true,
+  "SCO_19":true,"MAR_17":true,"SEN_13":true,
+  "BIH_7":true,"BIH_14":true,
+  "CAN_5":true,"CAN_13":true,
+  "AUT_1":true,"AUT_15":true,
+  "KOR_13":true,"KOR_17":true,
+  "COD_0":true,"COD_7":true,
+  "SUI_13":true,"SUI_15":true,
+  "GHA_11":true
+};
+
+const ESP = [
+  {id:"INTRO",nombre:"Intro FIFA WC 2026",emoji:"🌍",fig:["FWC 1","FWC 2","FWC 3","FWC 4","FWC 5","FWC 6 CAN","FWC 7 MEX","FWC 8 USA","We Are Panini"]},
+  {id:"FWC",nombre:"World Cup History",emoji:"🏆",fig:["FWC9 Italy 1934","FWC10 Brazil 1950","FWC11 Suiza 1954","FWC12 Brazil 1958","FWC13 Germany 1974","FWC14 Argentina 1978","FWC15 USA 1994","FWC16 Korea 2002","FWC17 Germany 2006","FWC18 Brazil 2014","FWC19 Qatar 2022","England 1966","Italy 1982","Germany 1990","France 1998","Spain 2010","France 2018","Brazil 1970"]},
+  {id:"CC",nombre:"Coca-Cola Stars",emoji:"🥤",fig:["CC1 Yamal","CC2 Kimmich","CC3 Kane","CC4 Giménez","CC5 Gvardiol","CC6 Valverde","CC7 Lerma","CC8 Valencia","CC9 Magalhães","CC10 Van Dijk","CC11 Davies","CC12 E.Martínez","CC13 R.Jiménez","CC14 L.Martínez"]},
+];
+
+const n20 = () => Array.from({length:20},(_,i)=>`${i+1}`);
+
+const GRUPOS = [
+  {id:"GRP_A",nombre:"Grupo A",color:"#16a34a",equipos:[
+    {id:"MEX",nombre:"México",emoji:"🇲🇽",color:"#15803d",jug:["1","2 Malagón","3 Vásquez","4 Sánchez","5","6 Gallardo","7","8 Lainez","9","10 Álvarez","11 Pineda","12 Ruiz","13 Foto","14 É.Sánchez","15 Lozano","16 S.Giménez","17 R.Jiménez","18 Vega","19","20 Huerta"]},
+    {id:"RSA",nombre:"Sudáfrica",emoji:"🇿🇦",color:"#ca8a04",jug:["1","2","3","4 Modiba","5 Kabini","6 Mbokazi","7 Ndimane","8 Ngezana","9","10 Sibisi","11 Monona","12 Mbatha","13 Foto","14 Adsabas","15 Sithole","16 Mbule","17 Foster","18","19","20 Appollis"]},
+    {id:"KOR",nombre:"Corea del Sur",emoji:"🇰🇷",color:"#dc2626",jug:["1","2","3 S.Kim","4 M.Kim","5 Y.Cho","6","7 H.Lee","8 T.Lee","9 M.Lee","10 J.Lee","11 I.Hwang","12 K.Lee","13 Foto","14 S.Paik","15 Gastrop","16 D.Lee","17 G.Cho","18 H.Son","19","20 H.Oh"]},
+    {id:"CZE",nombre:"Chequia",emoji:"🇨🇿",color:"#1d4ed8",jug:["1","2 Kovár","3","4 Krejčí","5 Coufal","6 Zelený","7 Holeš","8 Zima","9 Sadílek","10 Provod","11 Červ","12 Souček","13 Foto","14","15 Vydra","16","17 Chorý","18","19 Hložek","20"]},
+  ]},
+  {id:"GRP_B",nombre:"Grupo B",color:"#7c3aed",equipos:[
+    {id:"CAN",nombre:"Canadá",emoji:"🇨🇦",color:"#dc2626",jug:["1","2 St.Clair","3 Davies","4 Johnston","5 Adekugbe","6 Laryea","7 Larin","8 Bombito","9","10","11 Koné","12 Osorio","13 Foto","14 Shaffelburg","15 Choinière","16 Sigur","17 Buchanan","18 Millar","19","20 J.David"]},
+    {id:"BIH",nombre:"Bosnia-Herz.",emoji:"🇧🇦",color:"#1d4ed8",jug:["1 Bilbija","2","3 Dedić","4 Kolašinac","5 Muharemović","6 Mujakić","7","8 Hadžiahmetović","9 Tahirović","10 Gigović","11","12","13 Bašić","14","15 Bajraktarević","16 Memić","17 Demirović","18 Džeko","19 Baždar","20 Tabaković"]},
+    {id:"QAT",nombre:"Qatar",emoji:"🇶🇦",color:"#7c3aed",jug:["1 Barsham","2","3 Albrake","4 Mendes","5 Ahmed","6 Khoukhi","7 Miguel","8 Salman","9 Mannai","10 Boudiaf","11","12","13 Foto","14 Waad","15","16 Al-Haydos","17","18 Afif","19 Al-Ganehi","20 Almoez"]},
+    {id:"SUI",nombre:"Suiza",emoji:"🇨🇭",color:"#dc2626",jug:["1","2 Kobel","3 Mvogo","4","5 Rodríguez","6 Elvedi","7 Amenda","8 Widmer","9 Xhaka","10 Zakaria","11 Freuler","12 Rieder","13 Foto","14 Jashári","15","16 Aebischer","17 Embolo","18","19 Ndoye","20 Amdouni"]},
+  ]},
+  {id:"GRP_C",nombre:"Grupo C",color:"#d97706",equipos:[
+    {id:"BRA",nombre:"Brasil",emoji:"🇧🇷",color:"#ca8a04",jug:["1 Alisson","2","3 Bento","4 Marquinhos","5 Militão","6 G.Magalhães","7 Danilo","8 Wesley","9 Paquetá","10 Casemiro","11","12","13 Foto","14 Vinicius","15 Rodrygo","16 J.Pedro","17 M.Cunha","18 Martinelli","19 Raphinha","20 Estêvão"]},
+    {id:"MAR",nombre:"Marruecos",emoji:"🇲🇦",color:"#dc2626",jug:["1 Bounou","2","3 El Kajoui","4 Hakimi","5 Mazraoui","6 Aguerd","7 Saïss","8 El Yamiq","9 Masina","10 Amrabat","11","12 Ben Seghir","13 Foto","14 El Khannouss","15 Saibari","16 En-Nesyri","17 Ezzalzouli","18","19 B.Díaz","20 El Kaabi"]},
+    {id:"HAI",nombre:"Haití",emoji:"🇭🇹",color:"#0369a1",jug:["1 Placide","2","3 Arcus","4 Expérience","5 Duverné","6 Adé","7 Lacroix","8","9 Delcroix","10 Pierre","11","12","13 Foto","14 Attys","15 Etienne Jr.","16 Casimir","17","18 Nazon","19","20"]},
+    {id:"SCO",nombre:"Escocia",emoji:"🏴󠁧󠁢󠁳󠁣󠁴󠁿",color:"#1d4ed8",jug:["1","2 Gunn","3 Hendry","4 Tierney","5 Hickey","6 Robertson","7 McKenna","8 Souttar","9 Ralston","10 Hanley","11","12","13 Foto","14 Ferguson","15 Christie","16 McLean","17 McGinn","18 Dykes","19","20 Gannon-Doak"]},
+  ]},
+  {id:"GRP_D",nombre:"Grupo D",color:"#0284c7",equipos:[
+    {id:"USA",nombre:"EEUU",emoji:"🇺🇸",color:"#1d4ed8",jug:["1","2 Freese","3 Richards","4 Ream","5 McKenzie","6 Freeman","7","8 Adams","9 Tessmann","10 McKennie","11","12 Roldán","13 Foto","14 Luna","15","16 Pulisic","17 Aaronson","18 Pepi","19 Wright","20 Balogun"]},
+    {id:"PAR",nombre:"Paraguay",emoji:"🇵🇾",color:"#dc2626",jug:n20()},
+    {id:"AUS",nombre:"Australia",emoji:"🇦🇺",color:"#ca8a04",jug:n20()},
+    {id:"TUR",nombre:"Türkiye",emoji:"🇹🇷",color:"#dc2626",jug:n20()},
+  ]},
+  {id:"GRP_E",nombre:"Grupo E",color:"#ea580c",equipos:[
+    {id:"GER",nombre:"Alemania",emoji:"🇩🇪",color:"#374151",jug:["1 M.ter Stegen","2","3 J.Tah","4 D.Raum","5 A.Rüdiger","6 N.Schlotterbeck","7 W.Anton","8 R.Baku","9 M.Mittelstädt","10 J.Kimmich","11","12","13 Foto","14 L.Goretzka","15 J.Musiala","16 S.Gnabry","17 K.Havertz","18 L.Sané","19 K.Adeyemi","20 N.Woltemade"]},
+    {id:"CUW",nombre:"Curaçao",emoji:"🇨🇼",color:"#0284c7",jug:["1","2 E.Room","3 A.Obispo","4 S.Floranus","5 J.Gaari","6 J.Brenet","7 R.van Ejima","8 S.Sambo","9 L.Comencia","10","11","12","13 Foto","14 T.Chong","15","16 J.Margaritha","17 J.Locadia","18 J.Antonisse","19 G.Kastaneer","20 S.Hansen"]},
+    {id:"CIV",nombre:"Côte d'Ivoire",emoji:"🇨🇮",color:"#ea580c",jug:["1 Y.Fofana","2","3 G.Konan","4","5","6","7 W.Boly","8 E.Agbadou","9 O.Diomande","10 F.Kessié","11","12","13 Foto","14 J.Gbamin","15 A.Diallo","16 S.Haller","17 S.Adingra","18 V.Diomande","19 E.Guessand","20 O.Diaté"]},
+    {id:"ECU",nombre:"Ecuador",emoji:"🇪🇨",color:"#ca8a04",jug:["1 H.Galíndez","2 W.Pacho","3 G.Valle","4 P.Hincapié","5","6 A.Franco","7 A.Preciado","8 J.Ordóñez","9 M.Caicedo","10 A.Franco","11","12","13 Foto","14 J.Yeboah","15 L.Campana","16 G.Plata","17 N.Angulo","18 A.Minda","19 K.Rodríguez","20 E.Valencia"]},
+  ]},
+  {id:"GRP_F",nombre:"Grupo F",color:"#7c3aed",equipos:[
+    {id:"NED",nombre:"Países Bajos",emoji:"🇳🇱",color:"#ea580c",jug:n20()},
+    {id:"JPN",nombre:"Japón",emoji:"🇯🇵",color:"#dc2626",jug:n20()},
+    {id:"SWE",nombre:"Suecia",emoji:"🇸🇪",color:"#ca8a04",jug:n20()},
+    {id:"TUN",nombre:"Túnez",emoji:"🇹🇳",color:"#dc2626",jug:n20()},
+  ]},
+  {id:"GRP_G",nombre:"Grupo G",color:"#0891b2",equipos:[
+    {id:"BEL",nombre:"Bélgica",emoji:"🇧🇪",color:"#dc2626",jug:n20()},
+    {id:"EGY",nombre:"Egipto",emoji:"🇪🇬",color:"#dc2626",jug:n20()},
+    {id:"IRN",nombre:"IR Irán",emoji:"🇮🇷",color:"#15803d",jug:n20()},
+    {id:"NZL",nombre:"Nueva Zelanda",emoji:"🇳🇿",color:"#1d4ed8",jug:n20()},
+  ]},
+  {id:"GRP_H",nombre:"Grupo H",color:"#dc2626",equipos:[
+    {id:"ESP",nombre:"España",emoji:"🇪🇸",color:"#dc2626",jug:n20()},
+    {id:"CPV",nombre:"Cabo Verde",emoji:"🇨🇻",color:"#0284c7",jug:n20()},
+    {id:"KSA",nombre:"Arabia Saudita",emoji:"🇸🇦",color:"#15803d",jug:n20()},
+    {id:"URU",nombre:"Uruguay",emoji:"🇺🇾",color:"#0284c7",jug:n20()},
+  ]},
+  {id:"GRP_I",nombre:"Grupo I",color:"#7c3aed",equipos:[
+    {id:"FRA",nombre:"Francia",emoji:"🇫🇷",color:"#1d4ed8",jug:n20()},
+    {id:"SEN",nombre:"Senegal",emoji:"🇸🇳",color:"#15803d",jug:["1","2 Mendy","3 Diouf","4 Niakhate","5 Seck","6 Jakobs","7 M.Diouf","8 Koulibaly","9 Gana Gueye","10 P.M.Sarr","11","12 Diarra","13 Foto","14 Camara","15","16 Mané","17 S.Dia","18 Ndiaye","19 I.Sarr","20 Diatta"]},
+    {id:"IRQ",nombre:"Iraq",emoji:"🇮🇶",color:"#15803d",jug:["1","2 Hassan","3 Sulama","4","5","6 Doski","7 Traseen","8 Younis","9","10 Al-Ammari","11 Bayesh","12 Jasim","13 Foto","14 Amyn","15 Sher","16 Far-Ji","17","18 Al-Hamadi","19 Hussein","20 M.Ali"]},
+    {id:"NOR",nombre:"Noruega",emoji:"🇳🇴",color:"#dc2626",jug:["1","2 Ryland","3 Ryerson","4","5 V.Ajer","6 H.Pedersen","7 M.Wolfe","8 Heggem","9 Thorsby","10 Ødegaard","11 Berge","12","13 Foto","14 P.Berg","15 Haaland","16 Sørloth","17 Dönnum","18","19 Nusa","20 Bobb"]},
+  ]},
+  {id:"GRP_J",nombre:"Grupo J",color:"#ea580c",equipos:[
+    {id:"ARG",nombre:"Argentina",emoji:"🇦🇷",color:"#0284c7",jug:["1","2 E.Martínez","3 Molina","4 Romero","5 Otamendi","6 Tagliafico","7 Balerdi","8 De Paul","9 Mac Allister","10 R.Fernández","11 Palacios","12 T.Fernández","13 Foto","14 N.López","15 Mastantuono","16 N.González","17 Messi","18 L.Martínez","19 J.Álvarez","20 Simeone"]},
+    {id:"ALG",nombre:"Argelia",emoji:"🇩🇿",color:"#15803d",jug:["1","2","3 Bensebaini","4 Atal","5 Aït-Nouri","6 Tougai","7 Mandi","8 Bennacer","9 Aouar","10 Boudaoui","11 Zerrouki","12 Bentaleb","13 Foto","14 Chaïbi","15 Mahrez","16 Benrahma","17 Hadj Moussa","18 Gouiri","19 Bounedjah","20 Amoura"]},
+    {id:"AUT",nombre:"Austria",emoji:"🇦🇹",color:"#dc2626",jug:["1","2","3 Pentz","4 Alaba","5 Danso","6","7 Posch","8 Mwene","9 Prass","10 Schlager","11 Sabitzer","12 Laimer","13 Foto","14 Grillitsch","15 Seiwald","16 Schmid","17 Wimmer","18 Baumgartner","19 Gregoritsch","20 Arnautovic"]},
+    {id:"JOR",nombre:"Jordania",emoji:"🇯🇴",color:"#15803d",jug:["1","2","3 Hamad","4","5 Al-Arab","6 Nasib","7 Guaid","8","9 Saadeh","10 Al-Rashdan","11 Al-Rawabdeh","12 Abu Taha","13 Foto","14 Jamous","15 Al-Taamari","16 Al-Naimat","17 Al-Mardi","18 Olwan","19 Abu Zrayo","20 Sabra"]},
+  ]},
+  {id:"GRP_K",nombre:"Grupo K",color:"#db2777",equipos:[
+    {id:"POR",nombre:"Portugal",emoji:"🇵🇹",color:"#15803d",jug:["1","2 D.Costa","3 José Sá","4 R.Dias","5 Otamendi","6 Dalot","7 N.Mendes","8 Inácio","9 B.Silva","10 B.Fernandes","11 R.Neves","12 Vitinha","13 Foto","14","15 Ronaldo","16 Trincão","17 J.Félix","18","19 P.Neto","20 R.Leão"]},
+    {id:"COD",nombre:"Congo DR",emoji:"🇨🇩",color:"#0284c7",jug:["1","2 Mpasi","3 Wan-Bissaka","4 Tuanzebe","5","6 Mbemba","7","8","9 Mulau","10 Kavembe","11 Moutoussamy","12 Sadiki","13 Foto","14 Bongonda","15 Elia","16 Wissa","17 Cipenga","18 Mavele","19 Bakambu","20 Mbuku"]},
+    {id:"UZB",nombre:"Uzbekistán",emoji:"🇺🇿",color:"#0284c7",jug:["1","2 Yusupov","3","4 Mashrilaev","5","6 Aldulov","7 Ashurmatov","8 Alijonov","9 Khusanov","10 Hamrobekov","11 Shukunov","12 Iskanderov","13 Foto","14 Turgunboev","15 Ermunov","16 Shomurodov","17 Urunov","18","19 Sergeev","20 Fayzullaev"]},
+    {id:"COL",nombre:"Colombia",emoji:"🇨🇴",color:"#ca8a04",jug:["1","2 Vargas","3 Ospina","4 D.Sánchez","5 Y.Mina","6 Muñoz","7 Mojica","8 Lucumí","9 Arias","10","11 Castano","12","13 Foto","14 J.Rodríguez","15","16 Carrascal","17","18 Córdoba","19 Suárez","20 L.Díaz"]},
+  ]},
+  {id:"GRP_L",nombre:"Grupo L",color:"#0f766e",equipos:[
+    {id:"ENG",nombre:"Inglaterra",emoji:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",color:"#dc2626",jug:["1","2 Pickford","3 Stones","4 Guéhi","5 Konsa","6","7 R.James","8 Burn","9","10","11 Bellingham","12 Palmer","13 Foto","14 Rogers","15","16 Foden","17 Saka","18 Kane","19","20 Watkins"]},
+    {id:"CRO",nombre:"Croacia",emoji:"🇭🇷",color:"#dc2626",jug:["1","2 Livaković","3 Ćaleta-Car","4 Gvardiol","5 Stanišić","6 Vušković","7 Sutalo","8 Jakić","9 Modrić","10 Kovačić","11 Baturina","12 Majer","13 Foto","14","15 Sučić","16 Perišić","17 Pašalić","18 Budimir","19 Kramarić","20 Ivanović"]},
+    {id:"GHA",nombre:"Ghana",emoji:"🇬🇭",color:"#ca8a04",jug:["1","2 Ati-Zigi","3 Lamptey","4 Salisu","5 Seidu","6 Djiku","7 Mensah","8 Yikennyi","9 Abdul-Fatawu","10 Partey","11 Abdul Samed","12 Sulemana","13 Foto","14 Kudus","15","16 J.Ayew","17 A.Ayew","18 Paintsil","19 Bukari","20 Semenyo"]},
+    {id:"PAN",nombre:"Panamá",emoji:"🇵🇦",color:"#dc2626",jug:["1","2 Mosquera","3 Mejía","4 Escobar","5 Andrade","6 Murillo","7 Davis","8 Córdoba","9 Blackman","10 Martínez","11 Godoy","12 Carrasquilla","13 Foto","14 Bárcenas","15 Harvey","16 Díaz","17 Fajardo","18","19 Rodríguez","20 Quintero"]},
+  ]},
+];
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let col = JSON.parse(localStorage.getItem('p26_col') || 'null') || {...INICIAL};
+let rep = JSON.parse(localStorage.getItem('p26_rep') || '{}');
+let vista = 'album';
+let secActiva = 'GRP_J';
+let filtroGrupo = 'todos';
+let sobreAbierto = false;
+let longPressTimer = null;
+
+function save() {
+  localStorage.setItem('p26_col', JSON.stringify(col));
+  localStorage.setItem('p26_rep', JSON.stringify(rep));
+}
+
+// Construir lista completa de figuritas
+function getAllFig() {
+  const all = [];
+  ESP.forEach(s => s.fig.forEach((n,i) => all.push({id:`${s.id}_${i}`,nombre:n,tipo:'esp',secId:s.id,secNombre:s.nombre,secEmoji:s.emoji})));
+  GRUPOS.forEach(g => g.equipos.forEach(eq => eq.jug.forEach((n,i) => all.push({
+    id:`${eq.id}_${i}`,nombre:`${eq.id} ${n}`,tipo:'eq',
+    equipo:eq.id,eqNombre:eq.nombre,eqEmoji:eq.emoji,eqColor:eq.color,
+    grupo:g.id,gNombre:g.nombre,gColor:g.color,num:i+1
+  }))));
+  return all;
+}
+const ALL = getAllFig();
+const TOTAL = ALL.length;
+
+function stats() {
+  const tengo = ALL.filter(f=>col[f.id]).length;
+  const pct = Math.round(tengo/TOTAL*100);
+  document.getElementById('lbl-tengo').textContent = `✅ ${tengo} tengo`;
+  document.getElementById('lbl-pct').textContent = `${pct}%`;
+  document.getElementById('lbl-faltan').textContent = `❌ ${TOTAL-tengo} faltan`;
+  document.getElementById('progress-bar').style.width = pct+'%';
+  const totalRep = Object.values(rep).reduce((a,b)=>a+b,0);
+  const faltantes = ALL.filter(f=>!col[f.id]).length;
+  document.getElementById('nav-faltantes').textContent = `❌ Faltan (${faltantes})`;
+  document.getElementById('nav-repetidas').textContent = `🔁${totalRep>0?' ('+totalRep+')':''}`;
+}
+
+function tog(id) {
+  col[id] = !col[id];
+  save(); render(); stats();
+}
+function addR(id) {
+  rep[id] = (rep[id]||0)+1;
+  save(); render(); stats();
+}
+function rmR(id) {
+  if((rep[id]||0)<=1) delete rep[id]; else rep[id]--;
+  save(); render(); stats();
+}
+
+// ═══════════════════════════════════════
+// VISTAS
+// ═══════════════════════════════════════
+function setVista(v) {
+  vista = v;
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('nav-'+v).classList.add('active');
+  render();
+}
+
+function render() {
+  const c = document.getElementById('content');
+  if(vista==='faltantes') c.innerHTML = renderFaltantes();
+  else if(vista==='album') c.innerHTML = renderAlbum();
+  else if(vista==='exportar') c.innerHTML = renderExportar();
+  else if(vista==='intercambio') c.innerHTML = renderIntercambio();
+  else c.innerHTML = renderRepetidas();
+  bindEvents();
+}
+
+function renderFaltantes() {
+  const faltantes = ALL.filter(f=>!col[f.id]);
+  const grupos = {};
+  faltantes.forEach(f => {
+    const k = f.grupo||f.secId||'esp';
+    const nombre = f.gNombre||f.secNombre||'Especiales';
+    const color = f.gColor||'#1d4ed8';
+    if(!grupos[k]) grupos[k]={k,nombre,color,items:[]};
+    grupos[k].items.push(f);
+  });
+  const gList = Object.values(grupos);
+
+  let filtros = `<div id="filtros">
+    <button class="filtro-btn ${filtroGrupo==='todos'?'active':''}" onclick="setFiltro('todos')">Todos</button>`;
+  gList.forEach(g => {
+    filtros += `<button class="filtro-btn ${filtroGrupo===g.k?'active':''}" onclick="setFiltro('${g.k}')">${g.nombre}</button>`;
+  });
+  filtros += '</div>';
+
+  const mostrar = filtroGrupo==='todos' ? gList : gList.filter(g=>g.k===filtroGrupo);
+
+  let cards = '';
+  mostrar.forEach(g => {
+    let chips = '';
+    g.items.forEach(f => {
+      const num = f.num||'';
+      const namePart = f.nombre.replace(/^\S+ /,'').split(' ')[0]||'';
+      chips += `<button class="falt-chip" data-id="${f.id}">
+        <div class="cn">#${num}</div>
+        <div class="cname">${namePart}</div>
+      </button>`;
+    });
+    cards += `<div class="falt-card" style="border-left:4px solid ${g.color}">
+      <div class="falt-card-title">${g.nombre} — <span style="color:#dc2626">${g.items.length} faltan</span></div>
+      <div class="falt-chips">${chips}</div>
+    </div>`;
+  });
+
+  return `
+    <div class="falt-banner">
+      <h2>❌ Te faltan ${faltantes.length} figuritas</h2>
+      <p>Tocá una para marcarla como pegada</p>
+    </div>
+    ${filtros}${cards}`;
+}
+
+function renderAlbum() {
+  let html = `<input id="search-input" type="text" placeholder="🔍 Buscar jugador o equipo..." oninput="buscar(this.value)" value="">`;
+
+  let tabs = '<div id="tabs">';
+  tabs += `<button class="tab-btn ${secActiva==='TODO'?'active':''}" onclick="setSec('TODO')">🌍 Ver todo</button>`;
+  ESP.forEach(s => { tabs += `<button class="tab-btn ${secActiva===s.id?'active':''}" onclick="setSec('${s.id}')">${s.emoji} ${s.nombre.split(' ').slice(0,2).join(' ')}</button>`; });
+  GRUPOS.forEach(g => { tabs += `<button class="tab-btn ${secActiva===g.id?'active':''}" onclick="setSec('${g.id}')">${g.nombre}</button>`; });
+  tabs += '</div>';
+
+  let secHtml = '';
+  const ae = ESP.find(s=>s.id===secActiva);
+  const ag = GRUPOS.find(g=>g.id===secActiva);
+  if(secActiva==='TODO') {
+    ESP.forEach(s => { secHtml += renderEsp(s); });
+    GRUPOS.forEach(g => g.equipos.forEach(eq => { secHtml += renderEq(eq); }));
+  } else if(ae) secHtml = renderEsp(ae);
+  else if(ag) ag.equipos.forEach(eq => { secHtml += renderEq(eq); });
+
+  return html + tabs + `<div id="sec-content">${secHtml}</div>`;
+}
+
+function figCard(id, num, name, tiene, rc) {
+  if (tiene) {
+    return `<div class="fig-wrap">
+      <button class="fig-btn tiene" data-id="${id}">
+        <span class="fig-num">${num}</span>
+        <span class="fig-name">✓ ${name}</span>
+      </button>
+      <button class="fig-rep-btn" data-rep="${id}" title="Agregar repetida">+</button>
+      ${rc>0?`<div class="fig-rc">${rc}</div>`:''}
+    </div>`;
+  }
+  return `<div class="fig-wrap">
+    <button class="fig-btn" data-id="${id}">
+      <span class="fig-num">${num}</span>
+      <span class="fig-name">${name}</span>
+    </button>
+  </div>`;
+}
+
+function renderEsp(sec) {
+  const t = sec.fig.filter((_,i)=>col[`${sec.id}_${i}`]).length;
+  const p = Math.round(t/sec.fig.length*100);
+  let btns = '';
+  sec.fig.forEach((n,i) => {
+    const id=`${sec.id}_${i}`, tiene=col[id], rc=rep[id]||0;
+    btns += figCard(id, i+1, n.split(' ')[0], tiene, rc);
+  });
+  return `<div class="card">
+    <div class="card-header">
+      <div class="card-title">${sec.emoji} ${sec.nombre}</div>
+      <div class="card-count ${t===sec.fig.length?'done':''}">${t}/${sec.fig.length}</div>
+    </div>
+    <div class="bar-wrap"><div class="bar-fill" style="width:${p}%"></div></div>
+    <div class="figs">${btns}</div>
+  </div>`;
+}
+
+function renderEq(eq) {
+  const t = eq.jug.filter((_,i)=>col[`${eq.id}_${i}`]).length;
+  const p = Math.round(t/eq.jug.length*100);
+  let btns = '';
+  eq.jug.forEach((n,i) => {
+    const id=`${eq.id}_${i}`, tiene=col[id], rc=rep[id]||0;
+    const num=i+1, name=n.split(' ').slice(1,2).join('')||'';
+    btns += figCard(id, num, name, tiene, rc);
+  });
+  return `<div class="card" style="border-left:5px solid ${eq.color}">
+    <div class="card-header">
+      <div class="card-title"><span class="card-flag">${eq.emoji}</span>
+        <div><div style="font-size:16px">${eq.nombre}</div>
+        <div class="card-subtitle">${t} de ${eq.jug.length} pegadas</div></div>
+      </div>
+      <div class="card-count ${t===eq.jug.length?'done':''}">${Math.round(p)}%</div>
+    </div>
+    <div class="bar-wrap"><div class="bar-fill" style="width:${p}%;background:${eq.color}"></div></div>
+    <div class="figs">${btns}</div>
+  </div>`;
+}
+
+function renderRepetidas() {
+  const list = ALL.filter(f=>(rep[f.id]||0)>0);
+  const tot = Object.values(rep).reduce((a,b)=>a+b,0);
+  if(!list.length) return `<div class="empty"><div class="ei">🔁</div><h3>Sin repetidas todavía</h3><p>Tocá el botón <strong style="color:#f97316">+</strong> naranja<br>sobre una figurita que ya tenés</p></div>`;
+  let rows = `<div class="rep-banner">🔁 ${tot} figuritas para cambiar</div>`;
+  list.forEach(f => {
+    rows += `<div class="rep-row">
+      <div class="rep-info">
+        <div class="rep-name">${f.nombre}</div>
+        <div class="rep-id">${f.id}</div>
+      </div>
+      <div class="rep-controls">
+        <button class="rep-minus" onclick="rmR('${f.id}')">−</button>
+        <div class="rep-badge">${rep[f.id]}</div>
+        <button class="rep-plus" onclick="addR('${f.id}')">+</button>
+      </div>
+    </div>`;
+  });
+  return rows;
+}
+
+// ═══════════════════════════════════════
+// BIND EVENTS
+// ═══════════════════════════════════════
+function bindEvents() {
+  // Marcar/desmarcar figurita
+  document.querySelectorAll('.fig-btn[data-id]').forEach(btn => {
+    btn.addEventListener('click', ()=>tog(btn.dataset.id));
+  });
+  // Botón repetida (+ pequeño)
+  document.querySelectorAll('.fig-rep-btn[data-rep]').forEach(btn => {
+    btn.addEventListener('click', e=>{ e.stopPropagation(); addR(btn.dataset.rep); });
+  });
+  // Faltantes chips - solo marcar
+  document.querySelectorAll('.falt-chip[data-id]').forEach(btn => {
+    btn.addEventListener('click', ()=>tog(btn.dataset.id));
+  });
+}
+
+function setSec(id) { secActiva=id; render(); }
+function setFiltro(k) { filtroGrupo=k; render(); }
+
+function buscar(q) {
+  if(q.length<2) { document.getElementById('sec-content') && (document.getElementById('sec-content').style.display=''); document.getElementById('tabs') && (document.getElementById('tabs').style.display=''); document.getElementById('search-results') && document.getElementById('search-results').remove(); return; }
+  const ql=q.toLowerCase();
+  const res = ALL.filter(f=>f.nombre.toLowerCase().includes(ql)||f.id.toLowerCase().includes(ql)||(f.eqNombre||'').toLowerCase().includes(ql));
+  let chips='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">';
+  res.forEach(f=>{
+    const tiene=col[f.id];
+    chips+=`<button class="chip-btn ${tiene?'tiene':''}" data-id="${f.id}">${tiene?'✓ ':''}${f.nombre}</button>`;
+  });
+  chips+='</div>';
+  let el=document.getElementById('search-results');
+  if(!el){el=document.createElement('div');el.id='search-results';document.getElementById('sec-content').parentNode.insertBefore(el,document.getElementById('sec-content'));}
+  el.innerHTML=`<div style="font-size:12px;color:#888;margin-bottom:4px">${res.length} resultados</div>`+chips;
+  document.getElementById('sec-content').style.display='none';
+  document.getElementById('tabs').style.display='none';
+  el.querySelectorAll('.chip-btn[data-id]').forEach(btn=>{
+    const id=btn.dataset.id;
+    btn.addEventListener('click',()=>tog(id));
+  });
+}
+
+// ═══════════════════════════════════════
+// SOBRE
+// ═══════════════════════════════════════
+function toggleSobre() {
+  sobreAbierto = !sobreAbierto;
+  document.getElementById('sobre-box').className = sobreAbierto?'sobre-open':'';
+  document.getElementById('sobre-box').style.display = sobreAbierto?'block':'none';
+  document.getElementById('sobre-btn').textContent = sobreAbierto?'✕ Cerrar':'📦 Abrir sobre nuevo';
+}
+
+function procesarSobre() {
+  const input = document.getElementById('sobre-input').value.toUpperCase();
+  const tokens = input.split(/[\s,;\/\n]+/).filter(Boolean);
+  const marcadas=[], noEnc=[];
+  let i=0;
+  while(i<tokens.length) {
+    let found=false;
+    if(i+1<tokens.length && !isNaN(tokens[i+1])) {
+      const candidate=`${tokens[i]}_${parseInt(tokens[i+1])-1}`;
+      if(ALL.find(f=>f.id===candidate)) {
+        if(!col[candidate]) col[candidate]=true; else rep[candidate]=(rep[candidate]||0)+1;
+        marcadas.push(`${tokens[i]} ${tokens[i+1]}`);
+        i+=2; found=true;
+      }
+    }
+    if(!found){ noEnc.push(tokens[i]); i++; }
+  }
+  save(); stats(); render();
+  const msg = document.getElementById('sobre-msg');
+  msg.style.display='block';
+  msg.textContent = marcadas.length>0
+    ? `✅ ${marcadas.join(', ')}${noEnc.length?' | ⚠️ No encontré: '+noEnc.join(', '):''}` 
+    : '⚠️ No encontré ninguna. Usá: ARG 17 ENG 5';
+  document.getElementById('sobre-input').value='';
+}
+
+// ═══════════════════════════════════════
+// EXPORTAR
+// ═══════════════════════════════════════
+function renderExportar() {
+  const faltantes = ALL.filter(f=>!col[f.id]);
+  const grupos = {};
+  faltantes.forEach(f => {
+    const k = f.eqNombre||f.secNombre||'Especiales';
+    const emoji = f.eqEmoji||f.secEmoji||'📋';
+    if(!grupos[k]) grupos[k]={nombre:k,emoji,items:[]};
+    grupos[k].items.push(f.nombre.replace(/^\S+ /,''));
+  });
+
+  let texto = '⚽ FIGURITAS QUE ME FALTAN\nRoad to FIFA World Cup 2026\n';
+  texto += '─────────────────────\n';
+  Object.values(grupos).forEach(g => {
+    texto += `\n${g.emoji} ${g.nombre}:\n`;
+    texto += g.items.map(i=>`  • ${i}`).join('\n') + '\n';
+  });
+  texto += `\n─────────────────────\nTotal: ${faltantes.length} figuritas`;
+
+  return `
+    <div class="card" style="margin-bottom:12px">
+      <div style="font-weight:900;font-size:16px;margin-bottom:4px">📤 Exportar lista de faltantes</div>
+      <div style="font-size:12px;color:#888;margin-bottom:12px">${faltantes.length} figuritas · Para compartir o imprimir</div>
+      <button onclick="compartirWhatsApp()" style="width:100%;padding:12px;border-radius:10px;border:none;background:#25D366;color:#fff;font-weight:800;font-size:15px;cursor:pointer;margin-bottom:8px">
+        📱 Compartir por WhatsApp
+      </button>
+      <button onclick="imprimirLista()" style="width:100%;padding:12px;border-radius:10px;border:none;background:#1d4ed8;color:#fff;font-weight:800;font-size:15px;cursor:pointer;margin-bottom:8px">
+        🖨️ Imprimir / Guardar PDF
+      </button>
+      <button onclick="copiarLista()" style="width:100%;padding:12px;border-radius:10px;border:2px solid #d1d5db;background:#fff;color:#111;font-weight:700;font-size:14px;cursor:pointer">
+        📋 Copiar texto
+      </button>
+    </div>
+    <div class="card" style="white-space:pre-wrap;font-size:12px;font-family:monospace;color:#333;line-height:1.8" id="lista-texto">${texto}</div>`;
+}
+
+function getTextoFaltantes() {
+  const faltantes = ALL.filter(f=>!col[f.id]);
+  const grupos = {};
+  faltantes.forEach(f => {
+    const k = f.eqNombre||f.secNombre||'Especiales';
+    const emoji = f.eqEmoji||f.secEmoji||'📋';
+    if(!grupos[k]) grupos[k]={nombre:k,emoji,items:[]};
+    grupos[k].items.push(f.nombre.replace(/^\S+ /,''));
+  });
+  let texto = '⚽ FIGURITAS QUE ME FALTAN\nRoad to FIFA World Cup 2026\n─────────────────────\n';
+  Object.values(grupos).forEach(g => {
+    texto += `\n${g.emoji} ${g.nombre}:\n`;
+    texto += g.items.map(i=>`  • ${i}`).join('\n') + '\n';
+  });
+  texto += `\n─────────────────────\nTotal: ${faltantes.length} figuritas`;
+  return texto;
+}
+
+function compartirWhatsApp() {
+  const texto = getTextoFaltantes();
+  window.open('https://wa.me/?text=' + encodeURIComponent(texto), '_blank');
+}
+
+function copiarLista() {
+  const texto = getTextoFaltantes();
+  navigator.clipboard.writeText(texto).then(()=>{
+    alert('✅ Lista copiada!');
+  }).catch(()=>{
+    const el = document.getElementById('lista-texto');
+    const range = document.createRange();
+    range.selectNode(el);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+    alert('Seleccioná el texto y copiá manualmente');
+  });
+}
+
+function imprimirLista() {
+  const texto = getTextoFaltantes();
+  const win = window.open('', '_blank');
+  win.document.write(`<html><head><title>Figuritas que faltan</title>
+  <style>body{font-family:monospace;font-size:14px;padding:20px;white-space:pre-wrap;line-height:1.8}
+  @media print{button{display:none}}</style></head>
+
+  <body>${texto.replace(/\n/g,'<br>')}
+  <br><br><button onclick="window.print()">🖨️ Imprimir</button>
+  </body></html>`);
+  win.document.close();
+}
+
+// ═══════════════════════════════════════
+// INTERCAMBIO
+// ═══════════════════════════════════════
+function renderIntercambio() {
+return ` <div class="card" style="margin-bottom:12px"> <div style="font-weight:900;font-size:16px;margin-bottom:4px">🤝 Modo Intercambio</div> <div style="font-size:12px;color:#888;margin-bottom:12px">Pegá las repetidas de tu amiga/o y te digo cuáles te sirven</div> <div style="font-size:12px;color:#444;margin-bottom:6px"> Ejemplo: <strong style="color:#1d4ed8">ARG 17 ENG 5 BRA 14</strong><br> (los códigos de sus repetidas) </div> <textarea id="intercambio-input" placeholder="Pegá los códigos acá..." style="width:100%;padding:8px;border-radius:8px;border:2px solid #1d4ed8;font-size:14px;color:#111;min-height:80px;resize:none;outline:none;font-family:monospace;font-weight:700;box-sizing:border-box"></textarea> <button onclick="analizarIntercambio()" style="width:100%;padding:12px;margin-top:8px;border-radius:10px;border:none;background:#1d4ed8;color:#fff;font-weight:800;font-size:15px;cursor:pointer"> 🔍 Ver cuáles me sirven </button> <div id="intercambio-result" style="margin-top:12px"></div> </div> <div class="card"> <div style="font-weight:800;font-size:14px;margin-bottom:8px">📤 Compartir mis repetidas</div> <div style="font-size:12px;color:#888;margin-bottom:10px">Mandá tu lista de repetidas para que otros vean qué tenés para cambiar</div> <button onclick="compartirRepetidas()" style="width:100%;padding:12px;border-radius:10px;border:none;background:#25D366;color:#fff;font-weight:800;font-size:15px;cursor:pointer"> 📱 Compartir por WhatsApp </button> </div>`;
+}
+
+function analizarIntercambio() {
+const input = document.getElementById(‘intercambio-input’).value.toUpperCase();
+const tokens = input.split(/[\s,;/\n]+/).filter(Boolean);
+const sirven = [];
+const noSirven = [];
+let i = 0;
+while(i < tokens.length) {
+if(i+1 < tokens.length && !isNaN(tokens[i+1])) {
+const candidate = `${tokens[i]}_${parseInt(tokens[i+1])-1}`;
+const fig = ALL.find(f=>f.id===candidate);
+if(fig) {
+if(!col[candidate]) {
+sirven.push({id:candidate, nombre:fig.nombre});
+} else {
+noSirven.push({id:candidate, nombre:fig.nombre, razon:‘ya la tengo’});
+}
+i+=2;
+} else { i++; }
+} else { i++; }
+}
+
+let html = ‘’;
+if(sirven.length > 0) {
+html += `<div style="background:#f0fdf4;border:2px solid #86efac;border-radius:10px;padding:12px;margin-bottom:10px"> <div style="font-weight:800;color:#15803d;font-size:14px;margin-bottom:8px">✅ Me sirven ${sirven.length} figuritas:</div> <div style="display:flex;flex-wrap:wrap;gap:6px">`;
+sirven.forEach(f => {
+html += `<span style="background:#dcfce7;border:1.5px solid #16a34a;color:#15803d;padding:5px 10px;border-radius:8px;font-size:12px;font-weight:700">${f.nombre}</span>`;
+});
+html += `</div></div>`;
+}
+if(noSirven.length > 0) {
+html += `<div style="background:#fef2f2;border:2px solid #fca5a5;border-radius:10px;padding:12px"> <div style="font-weight:800;color:#dc2626;font-size:14px;margin-bottom:8px">❌ No me sirven ${noSirven.length} (ya las tengo):</div> <div style="display:flex;flex-wrap:wrap;gap:6px">`;
+noSirven.forEach(f => {
+html += `<span style="background:#fee2e2;border:1.5px solid #fca5a5;color:#dc2626;padding:5px 10px;border-radius:8px;font-size:12px;font-weight:700">${f.nombre}</span>`;
+});
+html += `</div></div>`;
+}
+if(sirven.length === 0 && noSirven.length === 0) {
+html = `<div style="color:#888;font-size:13px;text-align:center;padding:16px">⚠️ No encontré ninguna. Usá el formato: ARG 17 ENG 5</div>`;
+}
+document.getElementById(‘intercambio-result’).innerHTML = html;
+}
+
+function compartirRepetidas() {
+const list = ALL.filter(f=>(rep[f.id]||0)>0);
+if(list.length === 0) { alert(‘No tenés repetidas cargadas todavía’); return; }
+let texto = ‘🔁 MIS REPETIDAS PARA CAMBIAR\nRoad to FIFA World Cup 2026\n─────────────────────\n’;
+const grupos = {};
+list.forEach(f => {
+const k = f.eqNombre||f.secNombre||‘Especiales’;
+if(!grupos[k]) grupos[k]={nombre:k,items:[]};
+grupos[k].items.push(`${f.nombre} (x${rep[f.id]})`);
+});
+Object.values(grupos).forEach(g => {
+texto += `\n${g.nombre}:\n`;
+texto += g.items.map(i=>`  • ${i}`).join(’\n’) + ‘\n’;
+});
+texto += `\n─────────────────────\nTotal: ${list.length} figuritas distintas`;
+window.open(‘https://wa.me/?text=’ + encodeURIComponent(texto), ‘_blank’);
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+stats();
+render();
+</script>
+
+</body>
+</html>
