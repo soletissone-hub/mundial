@@ -217,7 +217,7 @@ var GRUPOS = [
   ]}
 ];
 
-var col = JSON.parse(localStorage.getItem('p26_col') || 'null') || JSON.parse(JSON.stringify(INICIAL));
+var col = JSON.parse(localStorage.getItem('p26_col') || 'null') || {};
 var rep = JSON.parse(localStorage.getItem('p26_rep') || '{}');
 var vista = 'album';
 var secActiva = 'GRP_J';
@@ -426,11 +426,14 @@ function buscar(q) {
   }
   var ql = q.toLowerCase();
 
-  // Check if search matches a team name exactly - if so go directly to that group
+  // Check if search matches a team name - find best match
   var equipoMatch = null;
   GRUPOS.forEach(function(g) {
     g.equipos.forEach(function(eq) {
-      if(eq.nombre.toLowerCase().indexOf(ql) >= 0 || eq.id.toLowerCase() === ql) {
+      var eqNombre = eq.nombre.toLowerCase();
+      var eqId = eq.id.toLowerCase();
+      // Only match if team name STARTS with the query or ID matches exactly
+      if(eqNombre.indexOf(ql) === 0 || eqId === ql || (ql.length >= 3 && eqNombre === ql)) {
         equipoMatch = {grupoId: g.id, eqId: eq.id};
       }
     });
@@ -449,13 +452,17 @@ function buscar(q) {
     render();
     // Scroll to the team card after render
     setTimeout(function() {
-      var cards = document.querySelectorAll('.card');
-      cards.forEach(function(card) {
-        if(card.innerHTML.indexOf(equipoMatch.eqId+'_') >= 0) {
-          card.scrollIntoView({behavior:'smooth'});
-        }
-      });
-    }, 100);
+      var btns = document.querySelectorAll('.fig-btn[data-id]');
+      if(btns.length > 0) {
+        var firstBtn = null;
+        btns.forEach(function(btn) {
+          if(!firstBtn && btn.dataset.id.indexOf(equipoMatch.eqId+'_') === 0) {
+            firstBtn = btn;
+          }
+        });
+        if(firstBtn) firstBtn.closest('.card').scrollIntoView({behavior:'smooth'});
+      }
+    }, 150);
     return;
   }
 
