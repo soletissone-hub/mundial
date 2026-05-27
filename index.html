@@ -41,11 +41,14 @@ body{font-family:'Trebuchet MS',sans-serif;background:#f0f2f5;color:#111;min-hei
 .bar-wrap{height:6px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin-bottom:10px;}
 .bar-fill{height:100%;border-radius:99px;transition:width .4s;background:#16a34a;}
 .fig-wrap{position:relative;display:inline-flex;flex-direction:column;align-items:center;}
+.fig-rep-minus{position:absolute;top:-6px;left:-6px;width:20px;height:20px;border-radius:50%;background:#dc2626;border:none;color:#fff;font-size:13px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.2);z-index:2;line-height:1;}
 .fig-rep-btn{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:#f97316;border:none;color:#fff;font-size:13px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.2);z-index:2;line-height:1;}
 .fig-rc{position:absolute;bottom:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:#dc2626;color:#fff;font-size:9px;font-weight:900;display:flex;align-items:center;justify-content:center;pointer-events:none;}
 .figs{display:flex;flex-wrap:wrap;gap:6px;}
 .fig-btn{width:58px;height:68px;border-radius:10px;background:#fff;border:2px solid #e5e7eb;color:#9ca3af;cursor:pointer;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:all .15s;box-shadow:0 1px 3px rgba(0,0,0,.08);}
 .fig-btn.tiene{background:#dcfce7;border-color:#16a34a;color:#15803d;box-shadow:0 2px 8px rgba(22,163,74,.25);}
+.fig-btn.flash{animation:flashAnim 0.4s ease;}
+@keyframes flashAnim{0%{transform:scale(1);background:#dcfce7;}50%{transform:scale(1.2);background:#86efac;box-shadow:0 0 12px rgba(22,163,74,.6);}100%{transform:scale(1);background:#dcfce7;}}
 .fig-btn .fig-num{font-size:16px;line-height:1;}
 .fig-btn .fig-name{font-size:8px;color:#d1d5db;max-width:54px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px;}
 .fig-btn.tiene .fig-name{color:#86efac;}
@@ -94,7 +97,10 @@ body{font-family:'Trebuchet MS',sans-serif;background:#f0f2f5;color:#111;min-hei
     </div>
   </div>
   <div id="sobre-wrap">
-    <button id="sobre-btn" onclick="toggleSobre()">Abrir sobre nuevo</button>
+    <div style="display:flex;gap:6px;padding:0 12px 6px">
+    <button id="sobre-btn" onclick="toggleSobre()" style="flex:1;padding:8px;border-radius:10px;border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;font-weight:700;font-size:13px;cursor:pointer">Abrir sobre nuevo</button>
+    <button onclick="deshacerUltima()" style="padding:8px 14px;border-radius:10px;border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;font-weight:700;font-size:13px;cursor:pointer">↩ Deshacer</button>
+  </div>
     <div id="sobre-box">
       <div id="sobre-hint">Escribi los codigos del sobre: Ej: ARG 17 ENG 5 BRA 14</div>
       <textarea id="sobre-input" placeholder="ARG 17 ENG 5 BRA 14..."></textarea>
@@ -261,7 +267,32 @@ function stats() {
   document.getElementById('nav-repetidas').textContent = tr > 0 ? 'Cambios ('+tr+')' : 'Cambios';
 }
 
-function tog(id) { col[id] = !col[id]; save(); render(); stats(); }
+var ultimaAccion = null;
+
+function tog(id) {
+  // Save undo state
+  ultimaAccion = {id: id, valor: col[id] || false};
+  col[id] = !col[id];
+  if(navigator.vibrate) navigator.vibrate(50);
+  save(); render(); stats();
+  // Flash animation on the button
+  if(col[id]) {
+    setTimeout(function() {
+      var btn = document.querySelector('.fig-btn[data-id="'+id+'"]');
+      if(btn) {
+        btn.classList.add('flash');
+        setTimeout(function(){btn.classList.remove('flash');}, 400);
+      }
+    }, 10);
+  }
+}
+
+function deshacerUltima() {
+  if(!ultimaAccion) { alert('Nada para deshacer'); return; }
+  col[ultimaAccion.id] = ultimaAccion.valor;
+  ultimaAccion = null;
+  save(); render(); stats();
+}
 function addR(id) { rep[id] = (rep[id]||0)+1; save(); render(); stats(); }
 function rmR(id) { if((rep[id]||0)<=1) delete rep[id]; else rep[id]--; save(); render(); stats(); }
 
@@ -287,7 +318,8 @@ function render() {
 
 function figCard(id, num, name, tiene, rc) {
   if(tiene) {
-    return '<div class="fig-wrap"><button class="fig-btn tiene" data-id="'+id+'"><span class="fig-num">'+num+'</span><span class="fig-name">'+name+'</span></button><button class="fig-rep-btn" data-rep="'+id+'">+</button>'+(rc>0?'<div class="fig-rc">'+rc+'</div>':'')+'</div>';
+    var minus = rc > 0 ? '<button class="fig-rep-minus" data-rmr="'+id+'" title="Quitar repetida">-</button>' : '';
+    return '<div class="fig-wrap"><button class="fig-btn tiene" data-id="'+id+'"><span class="fig-num">'+num+'</span><span class="fig-name">'+name+'</span></button><button class="fig-rep-btn" data-rep="'+id+'">+</button>'+minus+(rc>0?'<div class="fig-rc">'+rc+'</div>':'')+'</div>';
   }
   return '<div class="fig-wrap"><button class="fig-btn" data-id="'+id+'"><span class="fig-num">'+num+'</span><span class="fig-name">'+name+'</span></button></div>';
 }
@@ -335,7 +367,7 @@ function renderAlbum() {
     if(ae) sec = renderEsp(ae);
     else if(ag) ag.equipos.forEach(function(eq){sec += renderEq(eq);});
   }
-  return '<input id="search-input" type="text" placeholder="Buscar jugador o equipo..." oninput="buscar(this.value)">'+tabs+'<div id="sec-content">'+sec+'</div>';
+  return '<div style="display:flex;gap:6px;margin-bottom:10px"><input id="search-input" type="text" placeholder="Buscar equipo o jugador..." style="flex:1;padding:11px 14px;border-radius:12px;border:2px solid #d1d5db;background:#fff;color:#111;font-size:14px;outline:none;font-weight:500"><button id="search-btn" style="padding:11px 16px;border-radius:12px;border:none;background:#1d4ed8;color:#fff;font-weight:700;font-size:14px;cursor:pointer">Buscar</button></div>'+tabs+'<div id="sec-content">'+sec+'</div>';
 }
 
 function renderFaltantes() {
@@ -395,7 +427,7 @@ function renderExportar() {
     txt += g.items.map(function(i){return i;}).join(' ') + '\n';
   });
   txt += '\n---\nTotal: '+falt.length+' figuritas';
-  return '<div class="card" style="margin-bottom:12px"><div style="font-weight:900;font-size:16px;margin-bottom:4px">Exportar lista de faltantes</div><div style="font-size:12px;color:#888;margin-bottom:12px">'+falt.length+' figuritas para compartir o imprimir</div><button onclick="compartirWhatsApp()" style="width:100%;padding:12px;border-radius:10px;border:none;background:#25D366;color:#fff;font-weight:800;font-size:15px;cursor:pointer;margin-bottom:8px">Compartir por WhatsApp</button><button onclick="imprimirLista()" style="width:100%;padding:12px;border-radius:10px;border:none;background:#1d4ed8;color:#fff;font-weight:800;font-size:15px;cursor:pointer;margin-bottom:8px">Imprimir / Guardar PDF</button><button onclick="copiarLista()" style="width:100%;padding:12px;border-radius:10px;border:2px solid #d1d5db;background:#fff;color:#111;font-weight:700;font-size:14px;cursor:pointer">Copiar texto</button></div><div class="card" id="lista-texto" style="white-space:pre-wrap;font-size:12px;font-family:monospace;color:#333;line-height:1.8">'+txt+'</div>';
+  return '<div class="card" style="margin-bottom:12px;background:#fef2f2;border:2px solid #fca5a5"><div style="font-weight:800;font-size:15px;margin-bottom:8px;color:#dc2626">Resetear album</div><div style="font-size:12px;color:#888;margin-bottom:10px">Borra todo tu progreso y empieza desde 0</div><button onclick="resetAlbum()" style="width:100%;padding:12px;border-radius:10px;border:none;background:#dc2626;color:#fff;font-weight:800;font-size:15px;cursor:pointer">Borrar todo y empezar desde 0</button></div><div class="card" style="margin-bottom:12px"><div style="font-weight:900;font-size:16px;margin-bottom:4px">Exportar lista de faltantes</div><div style="font-size:12px;color:#888;margin-bottom:12px">'+falt.length+' figuritas para compartir o imprimir</div><button onclick="compartirWhatsApp()" style="width:100%;padding:12px;border-radius:10px;border:none;background:#25D366;color:#fff;font-weight:800;font-size:15px;cursor:pointer;margin-bottom:8px">Compartir por WhatsApp</button><button onclick="imprimirLista()" style="width:100%;padding:12px;border-radius:10px;border:none;background:#1d4ed8;color:#fff;font-weight:800;font-size:15px;cursor:pointer;margin-bottom:8px">Imprimir / Guardar PDF</button><button onclick="copiarLista()" style="width:100%;padding:12px;border-radius:10px;border:2px solid #d1d5db;background:#fff;color:#111;font-weight:700;font-size:14px;cursor:pointer">Copiar texto</button></div><div class="card" id="lista-texto" style="white-space:pre-wrap;font-size:12px;font-family:monospace;color:#333;line-height:1.8">'+txt+'</div>';
 }
 
 function renderIntercambio() {
@@ -403,11 +435,26 @@ function renderIntercambio() {
 }
 
 function bindEvents() {
+  var searchBtn = document.getElementById('search-btn');
+  if(searchBtn) {
+    searchBtn.addEventListener('click', function(){
+      buscar(document.getElementById('search-input').value);
+    });
+  }
+  var searchInput = document.getElementById('search-input');
+  if(searchInput) {
+    searchInput.addEventListener('keydown', function(e){
+      if(e.key === 'Enter') buscar(searchInput.value);
+    });
+  }
   document.querySelectorAll('.fig-btn[data-id]').forEach(function(btn) {
     btn.addEventListener('click', function(){tog(btn.dataset.id);});
   });
   document.querySelectorAll('.fig-rep-btn[data-rep]').forEach(function(btn) {
     btn.addEventListener('click', function(e){e.stopPropagation(); addR(btn.dataset.rep);});
+  });
+  document.querySelectorAll('.fig-rep-minus[data-rmr]').forEach(function(btn) {
+    btn.addEventListener('click', function(e){e.stopPropagation(); rmR(btn.dataset.rmr);});
   });
   document.querySelectorAll('.falt-chip[data-id]').forEach(function(btn) {
     btn.addEventListener('click', function(){tog(btn.dataset.id);});
@@ -432,8 +479,8 @@ function buscar(q) {
     g.equipos.forEach(function(eq) {
       var eqNombre = eq.nombre.toLowerCase();
       var eqId = eq.id.toLowerCase();
-      // Only match if team name STARTS with the query or ID matches exactly
-      if(eqNombre.indexOf(ql) === 0 || eqId === ql || (ql.length >= 3 && eqNombre === ql)) {
+      // Only match if ID matches exactly or nombre starts with query (min 3 chars)
+      if(eqId === ql || (ql.length >= 3 && eqNombre.indexOf(ql) === 0)) {
         equipoMatch = {grupoId: g.id, eqId: eq.id};
       }
     });
@@ -619,6 +666,19 @@ function compartirRepetidas() {
   });
   txt += '\n---\nTotal: '+list.length+' figuritas distintas';
   window.open('https://wa.me/?text='+encodeURIComponent(txt), '_blank');
+}
+
+function resetAlbum() {
+  if(confirm('Seguro que queres borrar todo y empezar desde 0?')) {
+    localStorage.removeItem('p26_col');
+    localStorage.removeItem('p26_rep');
+    col = {};
+    rep = {};
+    save();
+    stats();
+    render();
+    alert('Album reseteado!');
+  }
 }
 
 stats();
