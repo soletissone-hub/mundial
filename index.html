@@ -141,9 +141,9 @@ var INICIAL = {
 };
 
 var ESP = [
-  {id:"INTRO",nombre:"Intro FIFA WC 2026",emoji:"🌍",fig:["FWC 1","FWC 2","FWC 3","FWC 4","FWC 5","FWC 6 CAN","FWC 7 MEX","FWC 8 USA","We Are Panini"]},
-  {id:"FWC",nombre:"World Cup History",emoji:"🏆",fig:["FWC9 Italy 1934","FWC10 Brazil 1950","FWC11 Suiza 1954","FWC12 Brazil 1958","FWC13 Germany 1974","FWC14 Argentina 1978","FWC15 USA 1994","FWC16 Korea 2002","FWC17 Germany 2006","FWC18 Brazil 2014","FWC19 Qatar 2022"]},
-  {id:"CC",nombre:"Coca-Cola Stars",emoji:"🥤",fig:["CC1 Yamal","CC2 Kimmich","CC3 Kane","CC4 Gimenez","CC5 Gvardiol","CC6 Valverde","CC7 Lerma","CC8 Valencia","CC9 Magalhaes","CC10 Van Dijk","CC11 Davies","CC12 E.Martinez","CC13 R.Jimenez","CC14 L.Martinez"]}
+  {id:"INTRO",nombre:"Intro FIFA WC 2026",emoji:"🌍",fig:["FWC 1","FWC 2","FWC 3","FWC 4","FWC 5","FWC 6","FWC 7","FWC 8","We Are Panini"]},
+  {id:"FWC",nombre:"World Cup History",emoji:"🏆",fig:["FWC 9","FWC 10","FWC 11","FWC 12","FWC 13","FWC 14","FWC 15","FWC 16","FWC 17","FWC 18","FWC 19"]},
+  {id:"CC",nombre:"Coca-Cola Stars",emoji:"🥤",fig:["CC 1","CC 2","CC 3","CC 4","CC 5","CC 6","CC 7","CC 8","CC 9","CC 10","CC 11","CC 12","CC 13","CC 14"]}
 ];
 
 function n20(){return Array.from({length:20},function(_,i){return String(i+1);});}
@@ -412,21 +412,7 @@ function renderRepetidas() {
 }
 
 function renderExportar() {
-  var falt = ALL.filter(function(f){return !col[f.id];});
-  var gs = {};
-  falt.forEach(function(f) {
-    var k = f.eqNombre||f.secNombre||'Especiales';
-    var e = f.eqEmoji||f.secEmoji||'*';
-    if(!gs[k]) gs[k] = {nombre:k, emoji:e, items:[]};
-    var codigo = f.equipo ? f.equipo+' '+f.num : f.nombre.split(' ').slice(0,2).join(' ');
-    gs[k].items.push(codigo);
-  });
-  var txt = 'FIGURITAS QUE ME FALTAN\nRoad to FIFA World Cup 2026\n---\n';
-  Object.values(gs).forEach(function(g) {
-    txt += '\n'+g.emoji+' '+g.nombre+':\n';
-    txt += g.items.map(function(i){return i;}).join(' ') + '\n';
-  });
-  txt += '\n---\nTotal: '+falt.length+' figuritas';
+  var txt = getTextoFaltantes();
   return '<div class="card" style="margin-bottom:12px;background:#fef2f2;border:2px solid #fca5a5"><div style="font-weight:800;font-size:15px;margin-bottom:8px;color:#dc2626">Resetear album</div><div style="font-size:12px;color:#888;margin-bottom:10px">Borra todo tu progreso y empieza desde 0</div><button onclick="resetAlbum()" style="width:100%;padding:12px;border-radius:10px;border:none;background:#dc2626;color:#fff;font-weight:800;font-size:15px;cursor:pointer">Borrar todo y empezar desde 0</button></div><div class="card" style="margin-bottom:12px"><div style="font-weight:900;font-size:16px;margin-bottom:4px">Exportar lista de faltantes</div><div style="font-size:12px;color:#888;margin-bottom:12px">'+falt.length+' figuritas para compartir o imprimir</div><button onclick="compartirWhatsApp()" style="width:100%;padding:12px;border-radius:10px;border:none;background:#25D366;color:#fff;font-weight:800;font-size:15px;cursor:pointer;margin-bottom:8px">Compartir por WhatsApp</button><button onclick="imprimirLista()" style="width:100%;padding:12px;border-radius:10px;border:none;background:#1d4ed8;color:#fff;font-weight:800;font-size:15px;cursor:pointer;margin-bottom:8px">Imprimir / Guardar PDF</button><button onclick="copiarLista()" style="width:100%;padding:12px;border-radius:10px;border:2px solid #d1d5db;background:#fff;color:#111;font-weight:700;font-size:14px;cursor:pointer">Copiar texto</button></div><div class="card" id="lista-texto" style="white-space:pre-wrap;font-size:12px;font-family:monospace;color:#333;line-height:1.8">'+txt+'</div>';
 }
 
@@ -572,18 +558,17 @@ function getTextoFaltantes() {
   var falt = ALL.filter(function(f){return !col[f.id];});
   var gs = {};
   falt.forEach(function(f) {
-    var k = f.eqNombre||f.secNombre||'Especiales';
-    var e = f.eqEmoji||f.secEmoji||'*';
-    if(!gs[k]) gs[k] = {nombre:k, emoji:e, items:[]};
-    var codigo = f.equipo ? f.equipo+' '+f.num : f.nombre.split(' ').slice(0,2).join(' ');
-    gs[k].items.push(codigo);
+    var k = f.equipo || f.secId;
+    var nombre = f.eqNombre||f.secNombre||'Especiales';
+    var emoji = f.eqEmoji||f.secEmoji||'';
+    if(!gs[k]) gs[k] = {nombre:nombre, emoji:emoji, nums:[]};
+    gs[k].nums.push(f.num);
   });
-  var txt = 'FIGURITAS QUE ME FALTAN\nRoad to FIFA World Cup 2026\n---\n';
+  var txt = 'Figuritas App - Lista\n\nMe faltan\n';
   Object.values(gs).forEach(function(g) {
-    txt += '\n'+g.emoji+' '+g.nombre+':\n';
-    txt += g.items.join(' ') + '\n';
+    txt += g.nombre+' '+g.emoji+': '+g.nums.join(', ')+'\n';
   });
-  txt += '\n---\nTotal: '+falt.length+' figuritas';
+  txt += '\nTotal: '+falt.length+' figuritas';
   return txt;
 }
 
@@ -614,8 +599,17 @@ function analizarIntercambio() {
   var i = 0;
   while(i < tokens.length) {
     if(i+1 < tokens.length && !isNaN(tokens[i+1])) {
-      var c = tokens[i]+'_'+(parseInt(tokens[i+1])-1);
+      var prefix = tokens[i];
+      var num = parseInt(tokens[i+1]);
+      // First try direct ID match (equipo index 0-based)
+      var c = prefix+'_'+(num-1);
       var fig = ALL.find(function(f){return f.id===c;});
+      // If not found, try matching by nombre (for FWC9, CC1 etc)
+      if(!fig) {
+        var searchName = prefix+tokens[i+1];
+        fig = ALL.find(function(f){return f.nombre.toUpperCase().indexOf(searchName) === 0;});
+        if(fig) c = fig.id;
+      }
       if(fig) {
         if(!col[c]) sirven.push({id:c, nombre:fig.nombre});
         else noSirven.push({id:c, nombre:fig.nombre});
